@@ -68,7 +68,7 @@ func Connect(url string) Option {
 			return err
 		}
 
-		ec, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
+		ec, err := nats.NewEncodedConn(nc, nats.GOB_ENCODER)
 		if err != nil {
 			return err
 		}
