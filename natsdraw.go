@@ -46,8 +46,10 @@ func New(name string, r image.Rectangle, options ...Option) (*Image, error) {
 
 	m.conn.Conn.Subscribe(m.subject(), func(msg *nats.Msg) {
 		buf := new(bytes.Buffer)
-		png.Encode(buf, m.RGBA)
-		m.conn.Conn.Publish(msg.Reply, buf.Bytes())
+
+		if err := png.Encode(buf, m.RGBA); err == nil {
+			m.conn.Conn.Publish(msg.Reply, buf.Bytes())
+		}
 	})
 
 	m.conn.Subscribe(m.setSubject(), func(p *Pixel) {
