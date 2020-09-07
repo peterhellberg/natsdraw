@@ -2,6 +2,7 @@ package natsdraw
 
 import (
 	"bytes"
+	"errors"
 	"image"
 	"image/color"
 	"image/draw"
@@ -14,6 +15,9 @@ import (
 // LoadTimeout is the timeout for loading the image
 var LoadTimeout = 500 * time.Millisecond
 
+// ErrEmptyName is returned if name is empty
+var ErrEmptyName = errors.New("empty name")
+
 // Image implements draw.Image over NATS
 type Image struct {
 	*image.RGBA
@@ -23,6 +27,10 @@ type Image struct {
 
 // New creates a new *Image
 func New(name string, r image.Rectangle, options ...Option) (*Image, error) {
+	if name == "" {
+		return nil, ErrEmptyName
+	}
+
 	m := &Image{name: name, RGBA: image.NewRGBA(r)}
 
 	for _, o := range options {
@@ -83,13 +91,23 @@ func Connect(url string) Option {
 
 // Close the connection to NATS
 func (m *Image) Close() {
-	m.conn.Close()
+	if m.conn != nil {
+		m.conn.Close()
+	}
 }
 
 // Set the pixel at x,y to color c
 func (m *Image) Set(x, y int, c color.Color) {
-	m.conn.Publish(m.setSubject(), NewPixel(x, y, c))
+	if m.name == "" || m.RGBA == nil || m.conn == nil {
+		return
+	}
+
 	m.RGBA.Set(x, y, c)
+
+	s := m.setSubject()
+	p := NewPixel(x, y, c)
+
+	m.conn.Publish(s, p)
 }
 
 func (m *Image) subject() string {
