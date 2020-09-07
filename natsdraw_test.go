@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nats-io/gnatsd/test"
+	"github.com/nats-io/nats-server/test"
 )
 
 func TestNew(t *testing.T) {

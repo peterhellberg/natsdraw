@@ -8,7 +8,7 @@ import (
 	"image/png"
 	"time"
 
-	nats "github.com/nats-io/go-nats"
+	nats "github.com/nats-io/nats.go"
 )
 
 // LoadTimeout is the timeout for loading the image
